@@ -16,7 +16,6 @@ router.post("/add-transection", addTransection);
 router.post("/edit-transection", editTransection);
 //Delete transection POST MEthod
 router.post("/delete-transection", deleteTransection);
-
 //get transections
 router.post("/get-transection", getAllTransection);
 

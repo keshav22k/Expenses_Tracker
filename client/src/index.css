@@ -23,3 +23,21 @@
   box-shadow: 0 0 3px gray;
 }
 /* transection pages */
+
+.switch-icon{
+  border: 1px solid rgba(0, 0, 0, 0.514);
+  border-radius: 5px;
+  padding: 10px 15px;
+}
+/* antd icons */
+.anticon svg{
+  font-size: 20px;
+  cursor: pointer;
+}
+/* antd icons */
+.active-icon{
+  color: black;
+}
+.inactive-icon{
+  color: gray;
+}

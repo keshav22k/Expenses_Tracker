@@ -1,61 +1,72 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Input, Select, message, Table } from "antd";
+import { Modal, Form, Input, Select, message, Table, DatePicker } from "antd";
+import { UnorderedListOutlined, AreaChartOutlined } from "@ant-design/icons";
 import Layout from "./../components/Layout/Layout";
 import axios from "axios";
-import Spinner from "../components/Spinner";
+import Spinner from "./../components/Spinner";
+import moment from "moment";
+const { RangePicker } = DatePicker;
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [allTransection, setAllTransection] = useState([]);
+  const [frequency, setFrequency] = useState("7");
+  const [selectedDate, setSelectedDate] = useState([]);
+  const [type, setType] = useState("all");
+  const [ViewData, setViewData] = useState("table");
 
   // Table Data
   const columns = [
     {
-      title:'Date',
-      dataIndex:'date',
+      title: "Date",
+      dataIndex: "date",
+      render: (text) => <span>{moment(text).format("YYYY-MM-DD")}</span>,
     },
     {
-      title:'Amount',
-      dataIndex:'amount',
+      title: "Amount",
+      dataIndex: "amount",
     },
     {
-      title:'Type',
-      dataIndex:'type',
+      title: "Type",
+      dataIndex: "type",
     },
     {
-      title:'Category',
-      dataIndex:'category',
+      title: "Category",
+      dataIndex: "category",
     },
     {
-      title:'Refrence',
-      dataIndex:'refrence',
+      title: "Refrence",
+      dataIndex: "refrence",
     },
     {
-      title:'Actions',
+      title: "Actions",
     },
-  ]
-
-  // getall Transections
-  const getAllTransections = async () => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      setLoading(true);
-      const res = await axios.post("/transections/get-transection", { userid: user._id });
-      setLoading(false);
-      setAllTransection(res.data);
-      console.log(res.data);
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-      message.error('Fetch issue with Transection');
-    }
-  };
+  ];
 
   // UseEffect hook
-  useEffect(()=>{
+  useEffect(() => {
+    const getAllTransections = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        setLoading(true);
+        const res = await axios.post("/transections/get-transection", {
+          userid: user._id,
+          frequency,
+          selectedDate,
+          type,
+        });
+        setLoading(false);
+        setAllTransection(res.data);
+        console.log(res.data);
+      } catch (error) {
+        setLoading(false);
+        console.log(error);
+        message.error("Fetch issue with Transection");
+      }
+    };
     getAllTransections();
-  }, [])
+  }, [frequency, selectedDate, type]);
 
   // form handling
   const handleSubmit = async (values) => {
@@ -78,7 +89,48 @@ const HomePage = () => {
     <Layout>
       {loading && <Spinner />}
       <div className="filters">
-        <div>range filters</div>
+        <div>
+          Select frequency
+          <Select
+            values={frequency}
+            onChange={(values) => setFrequency(values)}
+          >
+            <Select.Option values="7">Last 1 week</Select.Option>
+            <Select.Option values="30">Last 1 month</Select.Option>
+            <Select.Option values="365">Last 1 year</Select.Option>
+            <Select.Option values="custom">Custom</Select.Option>
+          </Select>
+          {frequency === "custom" && (
+            <RangePicker
+              value={selectedDate}
+              onChange={(values) => setSelectedDate(values)}
+            />
+          )}
+        </div>
+        <div>
+          Select Type
+          <Select values={type} onChange={(values) => setType(values)}>
+            <Select.Option values="all">All</Select.Option>
+            <Select.Option values="income">Income</Select.Option>
+            <Select.Option values="expense">Expense</Select.Option>
+          </Select>
+          {frequency === "custom" && (
+            <RangePicker
+              value={selectedDate}
+              onChange={(values) => setSelectedDate(values)}
+            />
+          )}
+        </div>
+        <div className="switch-icon">
+          <UnorderedListOutlined
+            className={`mx-2 ${ViewData === 'table' ? 'active-icon' : 'inactive-icon'}`}
+            onClick={() => setViewData("table")}
+          />
+          <AreaChartOutlined
+            className={`mx-2 ${ViewData === 'analytics' ? 'active-icon' : 'inactive-icon'}`}
+            onClick={() => setViewData("analytics")}
+          />
+        </div>
         <div>
           <button
             className="btn btn-primary"
@@ -89,7 +141,7 @@ const HomePage = () => {
         </div>
       </div>
       <div className="content">
-        <Table columns={columns} dataSource={allTransection}/>
+        <Table columns={columns} dataSource={allTransection} />
       </div>
       <Modal
         title="Add Transection"

@@ -1,5 +1,6 @@
 const transectionModel = require("../models/transectionModel");
 const moment = require("moment");
+
 const getAllTransection = async (req, res) => {
   try {
     const { frequency, selectedDate, type } = req.body;
